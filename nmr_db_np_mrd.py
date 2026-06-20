@@ -2,18 +2,21 @@ import os
 import re
 import json
 import numpy as np
+import pubchempy as pcp
 import pandas as pd
+from rdkit import Chem
+from xml.etree import ElementTree as ET
 
 
 download_folder = r"C:\Users\herna\Sode Labs\downloads"
-output_csv = "np_mrd_1H_1000_expdata.csv"
+output_csv = "np_mrd_1H_250_expdata.csv"
 
-max_rows = 1000
+max_rows = 250
 xMin = 0
 xMax = 12
-points = 2000
+points = 1000
 
-def make_spectrum(peaks, x_min=0, x_max=12, n=2000, width=0.025):
+def make_spectrum(peaks, x_min=0, x_max=12, n=1000, width=0.025):
     x = np.linspace(x_min, x_max, n)
     y = np.zeros_like(x)
 
@@ -31,42 +34,28 @@ def parse_peak_text(text):
     """
 
     peaks = []
-    lines = text.splitlines()
-    for line in lines:
-        line_lower = line.lower()
 
-        # this skips obvious non peaks lines
-        if any(word in line_lower for word in ["name", "smiles", "inchi", "formula", "copyright"]):
-            continue
+    matches = re.findall(
+        r'<peak[^>]*amplitude="([^"]+)"[^>]*center="([^"]+)"',
+        text
+    )
 
-        nums = re.findall(r"[-+]?\d*\.\d+|[-+]?\d+", line)
-        if not nums:
-            continue 
-
+    for amplitude, center in matches:
         try:
-            shift = float(nums[0])
+            shift = float(center)
+            intensity = float(amplitude)
         except:
-            continue 
-
-        if not (0 <= shift <= 12):
             continue
 
-        intensity = 1.0
-        if len(nums) >= 2:
-            try:
-                possible_intensity = float(nums[1])
-                if possible_intensity > 0:
-                    intensity = possible_intensity 
-            except:
-                pass
-        peaks.append((shift, intensity))
+        if 0 <= shift <= 12:
+            peaks.append((shift, intensity))
+
     # this removes duplicate shifts 
     unique = {}
     for shift, intensity in peaks:
         unique[round(shift, 4)] = max(unique.get(round(shift, 4), 0), intensity)
 
     return [(shift, intensity) for shift, intensity in unique.items()]
-
 def extract_smiles(text):
     """
     Find smiles inside the downloaded files
@@ -83,6 +72,116 @@ def extract_smiles(text):
         match = re.search(pattern, text, re.IGNORECASE)
         if match:
             return match.group(1).strip()
+
+    return None
+
+def extract_smiles_from_structure(text):
+    """
+    build a smiles string from the atomlist and bondlist 
+    """
+    try:
+        root = ET.fromstring(text)
+    except:
+        return None
+
+    ns = {"nmr": "http://nmrml.org/schema"}
+
+    atom_dict = {}
+    mol = Chem.RWMol()
+
+    # read the atoms 
+    for atom in root.findall(".//nmr:atomList/nmr:atom", ns):
+        atom_id = atom.attrib.get("id")
+        element = atom.attrib.get("elementType")
+
+        if atom_id is None or element is None:
+            continue
+
+        if element == "H":
+            continue 
+            
+        try:
+            rd_atom = Chem.Atom(element)
+            idx = mol.AddAtom(rd_atom)
+            atom_dict[atom_id] = idx
+        except:
+            continue
+
+    # read the bonds
+    for bond in root.findall(".//nmr:bondList/nmr:bond", ns):
+        refs = bond.attrib.get("atomRefs")
+        order = bond.attrib.get("order", "1")
+
+        if refs is None:
+            continue
+
+        parts = refs.split()
+        if len(parts) != 2:
+            continue 
+
+        a1, a2 = parts
+        if a1 not in atom_dict or a2 not in atom_dict:
+            continue 
+
+        if order == "1":
+            bond_type = Chem.BondType.SINGLE
+
+        elif order == "2":
+            bond_type = Chem.BondType.DOUBLE
+        elif order == "3":
+            bond_type = Chem.BondType.TRIPLE
+        else:
+            bond_type = Chem.BondType.SINGLE
+        try:
+            mol.AddBond(atom_dict[a1], atom_dict[a2], bond_type)
+        except:
+            continue
+
+    try:
+        final_mol = mol.GetMol()
+        Chem.SanitizeMol(final_mol)
+        smiles = Chem.MolToSmiles(final_mol)
+        return smiles
+    except:
+        return None 
+
+def extract_smiles_from_pubchem(compound_name):
+    """
+    uses pubchem as an alt
+    """
+    if compound_name is None:
+        return None
+
+    try:
+        results = pcp.get_compounds(compound_name, "name")
+        if len(results) == 0:
+            return None 
+
+        return results[0].canonical.smiles
+    except:
+        return None
+
+    
+
+def extract_compound_name(text):
+    """ 
+    This extracts the compound name from the nmrML file 
+    """
+    match = re.search(
+        r'<identifier[^>]*accession="NMR:1002000"[^>]*name="([^"]+)"',
+        text
+    )
+
+    if match:
+        return match.group(1).strip()
+
+    match = re.search(
+        r'<identifier[^>]*name="([^"]+)"',
+        text
+    )
+
+    if match:
+        return match.group(1).strip()
 
     return None
 
@@ -136,15 +235,23 @@ for root, dirs, files in os.walk(download_folder):
             text = read_text_file(path)
 
             compound_id = extract_compound_id(filename, text)
+            compound_name = extract_compound_name(text)
+
             smiles = extract_smiles(text)
+            if smiles is None:
+                smiles = extract_smiles_from_structure(text)
+                print(compound_id, compound_name, smiles)
 
-            peak_area = text[text.find("peakList"):]
+            if smiles is None:
+                smiles = extract_smiles_from_pubchem(compound_name)
 
-            peaks = parse_peak_text(peak_area)
-            
+            if compound_name is None:
+                continue 
 
-           
+            if smiles is None:
+                continue 
 
+            peaks = parse_peak_text(text)
             
 
         elif ext in [".jdx", ".dx", ".jcamp"]:
@@ -158,6 +265,7 @@ for root, dirs, files in os.walk(download_folder):
                 continue
 
             compound_id = os.path.splitext(filename)[0]
+            
 
             if "x" in data and "y" in data:
                 x_raw = np.array(data["x"], dtype=float)
@@ -186,6 +294,7 @@ for root, dirs, files in os.walk(download_folder):
 
                 rows.append({
                     "compound_id": compound_id,
+                    "name": compound_name,
                     "smiles": smiles,
                     "peaks_ppm": None,
                     "x_ppm": json.dumps(x_new.tolist()),
@@ -206,6 +315,7 @@ for root, dirs, files in os.walk(download_folder):
 
         rows.append({
             "compound_id": compound_id,
+            "name": compound_name,
             "smiles": smiles,
             "peaks_ppm": json.dumps([p[0] for p in peaks]),
             "x_ppm": json.dumps(x),
@@ -214,7 +324,7 @@ for root, dirs, files in os.walk(download_folder):
             "source_type": source_type
         })
 
-        if len(rows) % 100 == 0:
+        if len(rows) % 1 == 0:
             print("Collected: ", len(rows))
 
     if len(rows) >= max_rows:
@@ -227,3 +337,5 @@ df.to_csv(output_csv, index=False)
 print("Saved CSV:", output_csv)
 print("Rows:", len(df))
 print(df.head())
+
+
