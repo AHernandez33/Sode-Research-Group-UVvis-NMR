@@ -1,0 +1,129 @@
+{
+    "smiles": "CC(=O)Oc1ccccc1C(=O)O",
+    "molecular_features": {
+        "input_smiles": "CC(=O)Oc1ccccc1C(=O)O",
+        "canonical_smiles": "CC(=O)Oc1ccccc1C(=O)O",
+        "molecular_formula": "C9H8O4",
+        "molecular_weight": 180.15899999999996,
+        "exact_molecular_weight": 180.042258736,
+        "logp": 1.3101,
+        "tpsa": 63.60000000000001,
+        "num_atoms": 13,
+        "num_heavy_atoms": 13,
+        "num_bonds": 13,
+        "num_rings": 1,
+        "num_aromatic_rings": 1,
+        "num_aliphatic_rings": 0,
+        "num_saturated_rings": 0,
+        "num_aromatic_atoms": 6,
+        "num_aromatic_bonds": 6,
+        "num_double_bonds": 2,
+        "num_triple_bonds": 0,
+        "num_conjugated_bonds": 12,
+        "num_heteroatoms": 4,
+        "num_hydrogen_bond_acceptors": 3,
+        "num_rotatable_bonds": 2,
+        "formal_charge": 0,
+        "aromatic_fraction": 0.46153846153846156,
+        "conjugated_fraction": 0.9230769230769231,
+        "has_aromatic_atoms": true,
+        "has_aromatic_rings": true,
+        "has_conjugation": true,
+        "has_double_bonds": true,
+        "has_triple_bonds": false,
+        "element_counts": {
+            "C": 9,
+            "O": 4
+        }
+    },
+    "retrieval_features": {
+        "highest_similarity": 0.34285714285714286,
+        "average_similarity": 0.30636560954017583,
+        "lowest_similarity": 0.2857142857142857,
+        "num_retrieved_molecules": 10,
+        "retrieved_molecule_ids": [
+            "MOL00193",
+            "MOL00892",
+            "MOL00990",
+            "MOL00957",
+            "MOL00198",
+            "MOL01045",
+            "MOL00073",
+            "MOL00996",
+            "MOL00065",
+            "MOL01042"
+        ],
+        "retrieved_smiles": [
+            "NC1=CC2=C(C=CC=C2)C=C1C(O)=O",
+            "CC(C)[C@H](NC(=O)Nc1ccccc1C(O)=O)C(O)=O",
+            "O=C(C(=O)c1ccccc1)c1ccccc1",
+            "Cc1ccc(O)c(C(=O)c2ccccc2)c1",
+            "COC1=CC2=CC=CC=C2C=C1C(N)=O",
+            "CN(C)c1ccc(C(=O)c2ccccc2)cc1",
+            "NC(=O)C1=CC=CC=C1O",
+            "COc1cccc(C=O)c1O",
+            "OC(=O)C1=CC2=C3C=CC=CC3=NC=C2C2=CC=CC=C12",
+            "O=C(O)c1ccc(/N=N/c2ccccc2)cc1"
+        ],
+        "retrieval_quality": "low"
+    },
+    "llm_features": {
+        "retrieval_confidence": "medium",
+        "functional_groups": [
+            [
+                "Carboxylic Acid",
+                "Ester",
+                "Aromatic Ring (Phenyl)"
+            ]
+        ],
+        "chromophores": [
+            [
+                "Aromatic Ring System",
+                "Carboxylic Acid Group"
+            ]
+        ],
+        "auxochromes": [
+            []
+        ],
+        "llm_aromatic": true,
+        "llm_conjugated": true,
+        "reasoning": "The query molecule is ibuprofen, a well-known NSAID. The retrieval results provide several structurally related molecules that share similar functional groups and aromatic characteristics. The Tanimoto similarities indicate some degree of similarity across the retrieved set, suggesting the search strategy captured relevant chemical space around ibuprofen. However, the overall average similarity is relatively low, implying there's room for improvement in capturing the specific UV-Vis properties associated with this molecule.",
+        "retrieval_analysis": "The retrieval returned compounds with varying degrees of aromaticity and conjugation. The similarity scores are moderate suggesting that the search algorithm identified molecules with similar features. There is a clear focus on aryl carboxylic acids, which is expected given the query molecule.",
+        "routing_notes": "The retrieval covers relevant structural analogs to ibuprofen, but further refinement of the search parameters (e.g., incorporating logP or specific UV-Vis spectroscopic features) could improve the relevance of the retrieved molecules and provide more targeted data for prediction models.",
+        "warnings": [
+            [
+                "LogP values are unknown for all retrieved compounds, limiting their utility for predicting solubility and other properties."
+            ]
+        ],
+        "recommended_models": [
+            []
+        ],
+        "descriptor_importance": [
+            []
+        ],
+        "uncertainty_notes": [
+            []
+        ]
+    },
+    "complexity_features": {
+        "complexity_score": 9,
+        "complexity_level": "very high"
+    },
+    "support_features": {
+        "data_support_score": 6,
+        "data_support_level": "medium"
+    },
+    "routing_flags": {
+        "small_molecule": true,
+        "large_molecule": false,
+        "aromatic_system": true,
+        "conjugated_system": true,
+        "multiple_rings": false,
+        "flexible_molecule": false,
+        "high_molecular_weight": false,
+        "contains_uncommon_elements": false,
+        "low_retrieval_support": false,
+        "high_retrieval_support": false,
+        "requires_uncertainty_warning": false
+    }
+}

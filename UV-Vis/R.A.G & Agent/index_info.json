@@ -1,0 +1,11 @@
+{
+    "input_file": "C:\\Users\\herna\\Sode Labs\\UV-Vis\\UV_metadata.csv",
+    "index_file": "C:\\Users\\herna\\Sode Labs\\UV-Vis\\R.A.G & Agent\\fingerprint_index.faiss",
+    "metadata_file": "C:\\Users\\herna\\Sode Labs\\UV-Vis\\R.A.G & Agent\\indexed_metadata.csv",
+    "fingerprint_type": "Morgan",
+    "fingerprint_radius": 2,
+    "similarity_index": "IndexFlatIP",
+    "vectors_normalized": true,
+    "number_of_indexed_molecules": 1073,
+    "number_of_invalid_fingerprints": 0
+}
