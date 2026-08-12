@@ -1,0 +1,45 @@
+CSV (already done)
+|
+|
+|
+|
+|
+|
+---------> Pubchem lookup (already done) (name to SMILES)
+|
+|
+|
+---------> Metadata (take the SMILES from the CSV)
+(Then use RDKit and Pubchem to search the following:
+molecule_id,smiles,canonical_smiles,inchikey,cas,molecular_formula,molecular_weight,heavy_atoms,aromatic_rings,h_bond_donors,h_bond_acceptors,rotatable_bonds,formal_charge,lookup_status)
+**(This stage is done)**
+|
+|
+|
+----------> LLM Prompting (Still working on it)
+(Will test 3 - Open AI/ChatGPT, Gemini, and Meta)
+(Validates SMILES, calls the appropriate tools, and explains the final prediction (this one is optional))
+|
+|
+|
+----------> (Retrieval Augmented Generation) (not done)
+(This is to find similar molecules from the training dataset)
+(This answers questions like "Have I seen a smiliar molecule before, best NN that would work, and is the molecule outside training data?)
+|
+|
+|
+-----------> Counter-propagation neural network (not done)
+(Predicts the MSE for each of the six neural networks, the best one will route to the neural networks chosen and that neural network will predict).
+|
+|
+|
+------------> The six neural networks (DTNN, MPNN, SchNet, Transformer, E3NN, QGNN)
+(Predicts the spectrum)
+(We got the E3NN neural network in Delta, the four in the paper (https://github.com/PNNL-CompBio/ML_UVvisModels/tree/main), and then we should construct from scratch the QGNN)
+(Might use AmazonSageMaker to automate parameter fine tuning if time before August 2nd)
+|
+|
+|
+------------> API and first rough prototype 
+(Will start both posters in July 31st)
+For this synposium - https://sites.uci.edu/ugradchem/
