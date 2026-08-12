@@ -1,0 +1,32 @@
+{
+    "primary_model": "Transformer",
+    "selected_models": [
+        "Transformer"
+    ],
+    "model_scores": {
+        "MPNN": 3.75,
+        "Transformer": 4.0
+    },
+    "model_reasons": {
+        "MPNN": [
+            "General molecular graph model.",
+            "Small or medium heavy-atom count favors graph message passing.",
+            "The molecule has a compact molecular graph."
+        ],
+        "Transformer": [
+            "Learns global patterns from the molecular representation.",
+            "Extended conjugation can depend on long-range structure.",
+            "Aromatic notation provides informative global patterns.",
+            "High molecular complexity favors global representation learning."
+        ]
+    },
+    "routing_confidence": 0.0625,
+    "available_models": [
+        "MPNN",
+        "Transformer"
+    ],
+    "unavailable_models": {
+        "SchNet": "Disabled for the prototype because no usable checkpoint is available.",
+        "DTNN": "Disabled for the prototype because trained weights and normalization files are missing."
+    }
+}
